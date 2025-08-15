@@ -23,10 +23,10 @@ import os
 from . import addon_updater_ops
 
 def get_path():
-    return os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    return os.path.dirname( os.path.dirname( os.path.realpath(__file__) ) )
 
 def get_name():
-    return os.path.basename(get_path())
+    return os.path.basename( get_path() )
 
 def get_prefs():
     # return bpy.context.preferences.addons[get_name()].preferences
@@ -79,11 +79,11 @@ class wowbjectAddonPrefs( bpy.types.AddonPreferences ):
 
     # TODO: Create some sort of per-project system for this.
     default_dir: bpy.props.StringProperty(
-        name="Default Directory",
-        description="",
-        default="",
-        subtype='DIR_PATH'
-    ) # type: ignore
+            name="Default Directory",
+            description="",
+            default="",
+            subtype='DIR_PATH'
+        ) # type: ignore
 
     # A fallback option for when the import operator
     # is called without a specified base shader type.
@@ -130,10 +130,10 @@ class wowbjectAddonPrefs( bpy.types.AddonPreferences ):
 
         # updater draw function
         # could also pass in col as third arg
-        addon_updater_ops.update_settings_ui(self, context)
+        addon_updater_ops.update_settings_ui( self, context )
 
 
-    def get_base_shader(self, base):
+    def get_base_shader( self, base ):
         if base == None:
             base = self.base_shader
 
@@ -151,7 +151,7 @@ class wowbjectAddonPrefs( bpy.types.AddonPreferences ):
             return "ShaderNodeEmission"
 
 
-class WoWbject_texture(bpy.types.PropertyGroup):
+class WoWbject_texture( bpy.types.PropertyGroup ):
     datablock: bpy.props.PointerProperty(
         type=bpy.types.Image,
         name="Texture"
@@ -159,10 +159,10 @@ class WoWbject_texture(bpy.types.PropertyGroup):
     path: bpy.props.StringProperty(name="Texture Path", default="") # type: ignore
 
 
-class WoWbject_ObjectProperties(bpy.types.PropertyGroup):
+class WoWbject_ObjectProperties( bpy.types.PropertyGroup ):
     """
-    Mostly Summary Information
-    """
+        Mostly Summary Information
+        """
     initialized: bpy.props.BoolProperty(
         default=False,
         options={'HIDDEN'}
@@ -196,7 +196,7 @@ class WoWbject_ObjectProperties(bpy.types.PropertyGroup):
     ) # type: ignore
 
 
-class WoWbject_MaterialProperties(bpy.types.PropertyGroup):
+class WoWbject_MaterialProperties( bpy.types.PropertyGroup ):
     """
     Mostly Summary Information
     """
@@ -219,14 +219,14 @@ class WoWbject_MaterialProperties(bpy.types.PropertyGroup):
     ) # type: ignore
 
 
-def get_rate(self):
+def get_rate( self ):
     return bpy.context.scene.render.fps
 
 
-class WoWbject_NodeGroupProperties(bpy.types.PropertyGroup):
+class WoWbject_NodeGroupProperties( bpy.types.PropertyGroup ):
     """
-    Mostly Summary Information
-    """
+        Mostly Summary Information
+        """
     rate: bpy.props.FloatProperty(
         name="Rate",
         description="",
@@ -235,10 +235,10 @@ class WoWbject_NodeGroupProperties(bpy.types.PropertyGroup):
     ) # type: ignore
 
 
-class WoWbject_BoneProperties(bpy.types.PropertyGroup):
+class WoWbject_BoneProperties( bpy.types.PropertyGroup ):
     """
-    Where billboard info goes
-    """
+        Where billboard info goes
+        """
     billboard_type: bpy.props.IntProperty(
         name="Billboard Type",
         default=-1

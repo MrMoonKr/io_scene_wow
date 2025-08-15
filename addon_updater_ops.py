@@ -68,37 +68,41 @@ updater.addon = "wowbject"
 # -----------------------------------------------------------------------------
 
 
-def make_annotations(cls):
-    """Add annotation attribute to class fields to avoid Blender 2.8 warnings"""
-    if not hasattr(bpy.app, "version") or bpy.app.version < (2, 80):
+def make_annotations( cls ):
+    """
+        Add annotation attribute to class fields to avoid Blender 2.8 warnings
+        """
+    if not hasattr( bpy.app, "version" ) or bpy.app.version < ( 2, 80 ):
         return cls
-    bl_props = {k: v for k, v in cls.__dict__.items() if isinstance(v, tuple)}
+    bl_props = { k: v for k, v in cls.__dict__.items() if isinstance( v, tuple ) }
     if bl_props:
         if '__annotations__' not in cls.__dict__:
-            setattr(cls, '__annotations__', {})
+            setattr( cls, '__annotations__', {} )
         annotations = cls.__dict__['__annotations__']
         for k, v in bl_props.items():
             annotations[k] = v
-            delattr(cls, k)
+            delattr( cls, k )
     return cls
 
 
-def layout_split(layout, factor=0.0, align=False):
-    """Intermediate method for pre and post blender 2.8 split UI function"""
-    if not hasattr(bpy.app, "version") or bpy.app.version < (2, 80):
-        return layout.split(percentage=factor, align=align)
-    return layout.split(factor=factor, align=align)
+def layout_split( layout, factor=0.0, align=False ):
+    """
+        Intermediate method for pre and post blender 2.8 split UI function
+        """
+    if not hasattr( bpy.app, "version") or bpy.app.version < ( 2, 80 ):
+        return layout.split( percentage=factor, align=align )
+    return layout.split( factor=factor, align=align )
 
 
-def get_user_preferences(context=None):
+def get_user_preferences( context=None ):
     """Intermediate method for pre and post blender 2.8 grabbing preferences"""
     if not context:
         context = bpy.context
     prefs = None
-    if hasattr(context, "user_preferences"):
-        prefs = context.user_preferences.addons.get(__package__, None)
-    elif hasattr(context, "preferences"):
-        prefs = context.preferences.addons.get(__package__, None)
+    if hasattr( context, "user_preferences" ):
+        prefs = context.user_preferences.addons.get( __package__, None )
+    elif hasattr( context, "preferences" ):
+        prefs = context.preferences.addons.get( __package__, None )
     if prefs:
         return prefs.preferences
     # To make the addon stable and non-exception prone, return None
@@ -112,43 +116,47 @@ def get_user_preferences(context=None):
 
 
 # simple popup for prompting checking for update & allow to install if available
-class addon_updater_install_popup(bpy.types.Operator):
-    """Check and install update if available"""
-    bl_label = "Update WoWbject Importer addon"
-    bl_idname = updater.addon+".updater_install_popup"
-    bl_description = "Popup menu to check and display current updates available"
-    bl_options = {'REGISTER', 'INTERNAL'}
+class addon_updater_install_popup( bpy.types.Operator ):
+    """
+        Check and install update if available
+        """
+    bl_idname       = updater.addon + ".updater_install_popup"
+    bl_label        = "Update WoWbject Importer addon"
+    bl_description  = "Popup menu to check and display current updates available"
+    bl_options      = {'REGISTER', 'INTERNAL'}
 
     # if true, run clean install - ie remove all files before adding new
     # equivalent to deleting the addon and reinstalling, except the
     # updater folder/backup folder remains
-    clean_install = bpy.props.BoolProperty(
-        name="Clean install",
-        description="If enabled, completely clear the addon's folder before installing new update, creating a fresh install",
-        default=False,
-        options={'HIDDEN'}
-    )
-    ignore_enum = bpy.props.EnumProperty(
-        name="Process update",
-        description="Decide to install, ignore, or defer new addon update",
-        items=[
-            ("install","Update Now","Install update now"),
-            ("ignore","Ignore", "Ignore this update to prevent future popups"),
-            ("defer","Defer","Defer choice till next blender session")
-        ],
-        options={'HIDDEN'}
-    )
+    clean_install: bpy.props.BoolProperty(
+            name="Clean install",
+            description="If enabled, completely clear the addon's folder before installing new update, creating a fresh install",
+            default=False,
+            options={'HIDDEN'}
+        ) # type: ignore
+    
+    ignore_enum: bpy.props.EnumProperty( # type: ignore
+            name="Process update",
+            description="Decide to install, ignore, or defer new addon update",
+            items=[
+                ("install","Update Now","Install update now"),
+                ("ignore", "Ignore",    "Ignore this update to prevent future popups"),
+                ("defer",  "Defer",     "Defer choice till next blender session")
+            ],
+            options={'HIDDEN'}
+        )
 
-    def check (self, context):
+    def check( self, context ):
         return True
 
-    def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self)
+    def invoke( self, context, event ):
+        return context.window_manager.invoke_props_dialog( self )
 
-    def draw(self, context):
+    def draw( self, context ):
         layout = self.layout
+        
         if updater.invalidupdater == True:
-            layout.label(text="Updater module error")
+            layout.label( text="Updater module error" )
             return
         elif updater.update_ready == True:
             col = layout.column()
@@ -174,28 +182,30 @@ class addon_updater_install_popup(bpy.types.Operator):
         # potentially in future, could have UI for 'check to select old version'
         # to revert back to.
 
-    def execute(self,context):
+    def execute( self,context ):
 
         # in case of error importing updater
         if updater.invalidupdater == True:
             return {'CANCELLED'}
 
         if updater.manual_only==True:
-            bpy.ops.wm.url_open(url=updater.website)
+            bpy.ops.wm.url_open( url=updater.website )
+            
         elif updater.update_ready == True:
 
             # action based on enum selection
-            if self.ignore_enum=='defer':
+            if self.ignore_enum == 'defer':
                 return {'FINISHED'}
-            elif self.ignore_enum=='ignore':
+            elif self.ignore_enum == 'ignore':
                 updater.ignore_update()
                 return {'FINISHED'}
             #else: "install update now!"
 
             res = updater.run_update(
-                            force=False,
-                            callback=post_update_callback,
-                            clean=self.clean_install)
+                        force=False,
+                        callback=post_update_callback,
+                        clean=self.clean_install
+                    )
             # should return 0, if not something happened
             if updater.verbose:
                 if res==0:
@@ -203,14 +213,14 @@ class addon_updater_install_popup(bpy.types.Operator):
                 else:
                     print("Updater returned {}, error occurred".format(res))
         elif updater.update_ready == None:
-            _ = updater.check_for_update(now=True)
+            _ = updater.check_for_update( now=True )
 
             # re-launch this dialog
             atr = addon_updater_install_popup.bl_idname.split(".")
-            getattr(getattr(bpy.ops, atr[0]),atr[1])('INVOKE_DEFAULT')
+            getattr( getattr( bpy.ops, atr[0] ), atr[1] )( 'INVOKE_DEFAULT' )
         else:
             if updater.verbose:
-                print("Doing nothing, not ready for update")
+                print( "Doing nothing, not ready for update" )
         return {'FINISHED'}
 
 
