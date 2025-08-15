@@ -72,32 +72,36 @@ classes = (
 )
 
 
-def menu_func_import(self, context):
-    self.layout.operator(WOWBJ_OT_Import.bl_idname, text='WoWbject (.obj)')
+def menu_func_import( self, context ):
+    self.layout.operator( WOWBJ_OT_Import.bl_idname, text='WoWbject (.obj)' )
 
 
 def register():
-    addon_updater_ops.register(bl_info)
+    print( "[io_scene_wow] register() 호출됨" )
+    
+    addon_updater_ops.register( bl_info )
+    
     for cls in classes:
-        bpy.utils.register_class(cls)
+        bpy.utils.register_class( cls )
 
-    bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
+    bpy.types.TOPBAR_MT_file_import.append( menu_func_import )
 
-    bpy.types.Object.WBJ = bpy.props.PointerProperty(type=WoWbject_ObjectProperties)
-    bpy.types.Material.WBJ = bpy.props.PointerProperty(type=WoWbject_MaterialProperties)
-    bpy.types.NodeTree.WBJ = bpy.props.PointerProperty(type=WoWbject_NodeGroupProperties)
+    bpy.types.Object.WBJ    = bpy.props.PointerProperty( type=WoWbject_ObjectProperties )
+    bpy.types.Material.WBJ  = bpy.props.PointerProperty( type=WoWbject_MaterialProperties )
+    bpy.types.NodeTree.WBJ  = bpy.props.PointerProperty( type=WoWbject_NodeGroupProperties )
 
 
 def unregister():
-    from bpy.utils import unregister_class
+    print( "[io_scene_wow] unregister() 호출됨" )
 
     addon_updater_ops.unregister()
 
     for cls in classes:
-        unregister_class(cls)
+        bpy.utils.unregister_class( cls )
 
-    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+    bpy.types.TOPBAR_MT_file_import.remove( menu_func_import )
 
     del bpy.types.Object.WBJ
     del bpy.types.Material.WBJ
     del bpy.types.NodeTree.WBJ
+

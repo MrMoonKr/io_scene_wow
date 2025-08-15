@@ -1005,18 +1005,18 @@ types:
 
     chunk:
       seq:
-      - id: chunk_type
-        type: str
-        size: 4
-        encoding: UTF-8
-      - id: chunk_size
-        type: u4
-      - id: data
-        size: chunk_size
-        type:
-          switch-on: chunk_type
-          cases:
-            '"MD21"': chunk_md21
-            '"LDV1"': chunk_ldv1
-            '"TXID"': chunk_txid
-            _: noop
+        - id: chunk_type
+          type: str
+          size: 4
+          encoding: UTF-8
+        - id: chunk_size
+          type: u4
+        - id: data
+          size: chunk_size
+          type:
+            switch-on: chunk_type
+            cases:
+              '"MD21"': chunk_md21
+              '"LDV1"': chunk_ldv1
+              '"TXID"': chunk_txid
+              _: noop
